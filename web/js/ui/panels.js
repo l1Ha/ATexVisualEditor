@@ -6,6 +6,10 @@
 import { icon } from './icons.js';
 import { openMenuFor } from './menus.js';
 
+// Folders the user collapsed — survives the sidebar being re-rendered, so a
+// refresh or a file switch does not pop every folder back open.
+const collapsedDirs = new Set();
+
 function formatSize(bytes) {
   if (!Number.isFinite(bytes)) return '';
   if (bytes < 1024) return `${bytes} B`;
@@ -44,7 +48,10 @@ export function renderFileTree(mount, files, opts) {
       }
       node = node.children.get(part);
     });
-    node.isDir = false;
+    // A directory entry arrives in the flat list too (`figures` alongside
+    // `figures/plot.png`) — mark it as a dir, don't clobber it into a file row
+    // (which used to hide everything inside it).
+    node.isDir = file.type === 'dir';
     node.meta = file;
   }
 
@@ -57,17 +64,20 @@ export function renderFileTree(mount, files, opts) {
       if (entry.isDir) {
         const dirRow = document.createElement('div');
         dirRow.className = 'atex-tree-row is-dir';
-        dirRow.innerHTML = `${icon('chevron-down', 12)}${icon('folder', 13)}<span class="atex-tree-name"></span>`;
+        const collapsed = collapsedDirs.has(entry.path);
+        dirRow.innerHTML = `${icon(collapsed ? 'chevron-right' : 'chevron-down', 12)}${icon('folder', 13)}<span class="atex-tree-name"></span>`;
         dirRow.querySelector('.atex-tree-name').textContent = entry.name;
         container.appendChild(dirRow);
         const children = document.createElement('div');
         children.className = 'atex-tree-children';
+        children.hidden = collapsed;
         container.appendChild(children);
-        let collapsed = false;
         dirRow.addEventListener('click', () => {
-          collapsed = !collapsed;
-          children.hidden = collapsed;
-          dirRow.querySelector('.atex-icon').outerHTML = icon(collapsed ? 'chevron-right' : 'chevron-down', 12);
+          const next = !children.hidden;
+          if (next) collapsedDirs.add(entry.path);
+          else collapsedDirs.delete(entry.path);
+          children.hidden = next;
+          dirRow.querySelector('.atex-icon').outerHTML = icon(next ? 'chevron-right' : 'chevron-down', 12);
         });
         attachContextMenu(dirRow, entry);
         render(entry, children);

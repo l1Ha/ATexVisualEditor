@@ -305,7 +305,9 @@ function buildEditors() {
           state.doc.setSource(text, { commit: true, kind: 'source', silent: true });
           visual.doc = state.doc;
           visual.render({ preserveCaret: true });
-          renderSidebar();
+          // No renderSidebar() here: the tree shows names and badges, none of
+          // which change while typing — rebuilding it would reset which
+          // folders the user had collapsed.
           scheduleCompile();
           renderStatus();
         },
