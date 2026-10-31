@@ -1,0 +1,2469 @@
+/* ==========================================================================
+   ATexVisualEditor — application styles
+   --------------------------------------------------------------------------
+   One stylesheet, no build step.  Sections:
+     1. tokens & reset
+     2. app shell (top bar, sidebar, panes)
+     3. controls (buttons, inputs, chips, menus)
+     4. file tree, outline, diagnostics
+     5. visual editor
+     6. source editor
+     7. PDF preview
+     8. overlays (modal, popover, toast)
+     9. responsive & print
+   ========================================================================== */
+
+/* -- 1. tokens ----------------------------------------------------------- */
+
+:root {
+  --bg: #f6f7f9;
+  --bg-raised: #ffffff;
+  --bg-sunken: #eef0f4;
+  --bg-hover: #f1f3f7;
+  --bg-active: #e6eaf2;
+
+  --text: #1c2333;
+  --text-muted: #64708a;
+  --text-faint: #98a2b8;
+
+  --border: #dfe3ea;
+  --border-strong: #c6cdda;
+
+  --accent: #0d6efd;
+  --accent-soft: #e7f0ff;
+  --accent-text: #0b5ed7;
+  --accent-2: #0d9488;
+
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --success: #047857;
+  --success-soft: #d1fae5;
+
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
+  --shadow: 0 4px 14px rgba(17, 24, 39, 0.09);
+  --shadow-lg: 0 18px 44px rgba(17, 24, 39, 0.18);
+
+  --radius: 7px;
+  --radius-lg: 12px;
+
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'Noto Sans', Ubuntu, Cantarell, 'Open Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-doc: Georgia, 'Iowan Old Style', 'Times New Roman', 'Source Serif Pro',
+    'Noto Serif', 'Songti SC', 'SimSun', serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', 'DejaVu Sans Mono', monospace;
+
+  --doc-font-size: 16px;
+  --code-font-size: 13px;
+  --line: 1.65;
+
+  --sidebar-width: 264px;
+  --topbar-height: 48px;
+  --statusbar-height: 26px;
+}
+
+:root[data-theme='dark'] {
+  --bg: #14161c;
+  --bg-raised: #1c1f27;
+  --bg-sunken: #101218;
+  --bg-hover: #232733;
+  --bg-active: #2a2f3d;
+
+  --text: #e6e9f0;
+  --text-muted: #98a1b8;
+  --text-faint: #6b7488;
+
+  --border: #2b3040;
+  --border-strong: #3a4152;
+
+  --accent: #4c8dff;
+  --accent-soft: #1c2942;
+  --accent-text: #7aabff;
+  --accent-2: #2dd4bf;
+
+  --danger: #f87171;
+  --danger-soft: #3a1d1d;
+  --warning: #fbbf24;
+  --warning-soft: #3a2f14;
+  --success: #34d399;
+  --success-soft: #123326;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 22px 50px rgba(0, 0, 0, 0.6);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-faint) 45%, transparent);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text-muted) 70%, transparent);
+  background-clip: content-box;
+}
+
+/* -- 2. app shell -------------------------------------------------------- */
+
+.atex-app {
+  display: grid;
+  grid-template-rows: var(--topbar-height) minmax(0, 1fr) var(--statusbar-height);
+  height: 100vh;
+}
+
+.atex-body {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.atex-sidebar {
+  width: var(--sidebar-width);
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-raised);
+  border-right: 1px solid var(--border);
+  min-width: 0;
+}
+.atex-sidebar[hidden] {
+  display: none;
+}
+
+.atex-main {
+  flex: 1 1 auto;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+}
+
+.atex-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--bg-raised);
+  position: relative;
+}
+.atex-pane + .atex-pane {
+  border-left: 1px solid var(--border);
+}
+.atex-pane-editor {
+  flex: 1 1 55%;
+}
+.atex-pane-pdf {
+  flex: 0 0 45%;
+  min-width: 240px;
+}
+.atex-pane[hidden] {
+  display: none;
+}
+
+.atex-splitter {
+  flex: 0 0 5px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  z-index: 3;
+  margin: 0 -2px;
+}
+.atex-splitter::after {
+  content: '';
+  position: absolute;
+  inset: 0 2px;
+  background: transparent;
+  transition: background 0.15s;
+}
+.atex-splitter:hover::after,
+.atex-splitter.is-dragging::after {
+  background: var(--accent);
+}
+.atex-splitter[hidden] {
+  display: none;
+}
+
+/* top bar */
+.atex-topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.atex-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 10px;
+  margin-right: 4px;
+  border-right: 1px solid var(--border);
+  height: 100%;
+  user-select: none;
+}
+.atex-brand-mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+}
+.atex-brand-name {
+  font-weight: 650;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.atex-brand-sub {
+  color: var(--text-faint);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.atex-project-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 9px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  max-width: 320px;
+  min-width: 0;
+}
+.atex-project-chip:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+.atex-project-chip strong {
+  font-weight: 600;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atex-project-chip small {
+  color: var(--text-faint);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.atex-compile-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: auto;
+}
+.atex-compile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--accent);
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.atex-compile-btn:hover {
+  filter: brightness(1.06);
+}
+.atex-compile-btn.is-busy {
+  background: var(--bg-active);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  cursor: progress;
+}
+.atex-compile-menu {
+  height: 32px;
+  width: 32px;
+  border: 1px solid var(--accent);
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.atex-compile-menu:hover {
+  filter: brightness(1.06);
+}
+.atex-compile-split.is-idle .atex-compile-btn,
+.atex-compile-split.is-idle .atex-compile-menu {
+  background: var(--bg-raised);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.atex-compile-split {
+  display: flex;
+}
+
+.atex-view-switch {
+  display: flex;
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  padding: 2px;
+  gap: 2px;
+}
+.atex-view-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.atex-view-switch button:hover {
+  color: var(--text);
+}
+.atex-view-switch button.is-active {
+  background: var(--bg-raised);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* status bar */
+.atex-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 12px;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  min-width: 0;
+}
+.atex-statusbar .atex-status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.atex-statusbar .atex-status-spacer {
+  margin-left: auto;
+}
+.atex-status-ok {
+  color: var(--success);
+}
+.atex-status-error {
+  color: var(--danger);
+}
+.atex-status-warn {
+  color: var(--warning);
+}
+.atex-status-button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.atex-status-button:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+/* -- 3. controls --------------------------------------------------------- */
+
+.atex-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.atex-btn:hover {
+  background: var(--bg-hover);
+}
+.atex-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.atex-btn-primary:hover {
+  filter: brightness(1.07);
+}
+.atex-btn-danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+.atex-btn-danger:hover {
+  background: var(--danger-soft);
+}
+.atex-btn-ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.atex-btn-ghost:hover {
+  background: var(--bg-hover);
+}
+
+.atex-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.atex-icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.atex-icon-btn.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.atex-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.atex-icon-btn.is-danger:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.atex-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+  flex-wrap: wrap;
+  min-height: 40px;
+}
+.atex-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+.atex-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 6px;
+}
+.atex-toolbar-spacer {
+  flex: 1 1 auto;
+}
+.atex-toolbar-select {
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-raised);
+  color: var(--text);
+  font-size: 12.5px;
+  padding: 0 6px;
+  cursor: pointer;
+  max-width: 150px;
+}
+
+.atex-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.atex-chip:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.atex-chip.is-active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.atex-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.atex-input {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+.atex-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+.atex-input-mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+textarea.atex-input {
+  resize: vertical;
+  line-height: 1.5;
+}
+.atex-field {
+  margin-bottom: 12px;
+}
+.atex-field-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.atex-field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.atex-field-hint {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+.atex-form-note {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.atex-range {
+  flex: 1 1 auto;
+  accent-color: var(--accent);
+}
+.atex-range-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 42px;
+  text-align: right;
+}
+.atex-file-input {
+  display: none;
+}
+.atex-muted {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* menus */
+.atex-menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 210px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 5px;
+  font-size: 13px;
+}
+.atex-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+}
+.atex-menu-item:hover {
+  background: var(--bg-hover);
+}
+.atex-menu-item.is-danger {
+  color: var(--danger);
+}
+.atex-menu-item[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+.atex-menu-item .atex-menu-hint {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+}
+.atex-menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 5px 4px;
+}
+.atex-menu-label {
+  padding: 6px 9px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+.atex-menu-item.is-checked::after {
+  content: '✓';
+  margin-left: auto;
+  color: var(--accent);
+}
+
+/* -- 4. sidebar ---------------------------------------------------------- */
+
+.atex-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 6px;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.atex-tab {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 9px 8px;
+  font-size: 12.5px;
+  font-weight: 550;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.atex-tab:hover {
+  color: var(--text);
+}
+.atex-tab.is-active {
+  color: var(--accent-text);
+  border-bottom-color: var(--accent);
+}
+.atex-tab-badge {
+  background: var(--danger);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 1px 5px;
+  font-weight: 700;
+}
+.atex-tab-badge.is-warning {
+  background: var(--warning);
+}
+.atex-tab-badge.is-muted {
+  background: var(--text-faint);
+}
+
+.atex-sidebar-body {
+  flex: 1 1 auto;
+  overflow: auto;
+  min-height: 0;
+}
+.atex-sidebar-panel[hidden] {
+  display: none;
+}
+.atex-sidebar-footer {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--border);
+  padding: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.atex-tree {
+  padding: 6px 4px 14px;
+}
+.atex-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: var(--text);
+  position: relative;
+}
+.atex-tree-row:hover {
+  background: var(--bg-hover);
+}
+.atex-tree-row.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.atex-tree-row.is-dir {
+  color: var(--text-muted);
+  font-weight: 550;
+}
+.atex-tree-row .atex-tree-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+}
+.atex-tree-row .atex-tree-size {
+  color: var(--text-faint);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+.atex-tree-row .atex-tree-actions {
+  display: none;
+  gap: 2px;
+}
+.atex-tree-row:hover .atex-tree-actions {
+  display: flex;
+}
+.atex-tree-row .atex-tree-badge {
+  font-size: 10px;
+  border-radius: 4px;
+  padding: 1px 4px;
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.atex-tree-row.is-main .atex-tree-badge {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.atex-tree-children {
+  padding-left: 12px;
+}
+
+.atex-outline {
+  padding: 8px 6px 16px;
+}
+.atex-outline-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atex-outline-item:hover {
+  background: var(--bg-hover);
+}
+.atex-outline-item.level-0 {
+  font-weight: 700;
+  font-size: 13px;
+}
+.atex-outline-item.level-1 {
+  font-weight: 650;
+}
+.atex-outline-item.level-2 {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.atex-outline-item.level-3,
+.atex-outline-item.level-4,
+.atex-outline-item.level-5 {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.atex-outline-item .atex-outline-count {
+  float: right;
+  color: var(--text-faint);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.atex-diagnostics {
+  padding: 6px 8px 16px;
+}
+.atex-diagnostic {
+  display: flex;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12.5px;
+  line-height: 1.45;
+  align-items: flex-start;
+}
+.atex-diagnostic:hover {
+  background: var(--bg-hover);
+}
+.atex-diagnostic .atex-diagnostic-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.atex-diagnostic-error .atex-diagnostic-icon {
+  color: var(--danger);
+}
+.atex-diagnostic-warning .atex-diagnostic-icon {
+  color: var(--warning);
+}
+.atex-diagnostic-info .atex-diagnostic-icon {
+  color: var(--text-faint);
+}
+.atex-diagnostic-message {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.atex-diagnostic-where {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 2px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atex-diagnostic-context {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.atex-empty-note {
+  padding: 20px 16px;
+  color: var(--text-faint);
+  font-size: 12.5px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.atex-log-view {
+  margin: 0;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-muted);
+}
+
+/* -- 5. visual editor ---------------------------------------------------- */
+
+.atex-visual-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  background: var(--bg-sunken);
+  min-height: 0;
+}
+.atex-visual-root {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 44px 56px 120px;
+  background: var(--bg-raised);
+  min-height: 100%;
+  font-family: var(--font-doc);
+  font-size: var(--doc-font-size);
+  line-height: var(--line);
+  color: var(--text);
+  caret-color: var(--accent);
+  outline: none;
+}
+:root[data-theme='dark'] .atex-visual-root {
+  background: #191c23;
+}
+.atex-visual-root.atex-readonly {
+  opacity: 0.96;
+}
+.atex-visual-root:focus {
+  outline: none;
+}
+
+.atex-block {
+  position: relative;
+  margin: 0 0 0.35em;
+}
+.atex-paragraph {
+  margin-bottom: 0.55em;
+}
+.atex-paragraph-content {
+  margin: 0;
+  white-space: normal;
+}
+.atex-paragraph-anchor {
+  display: none;
+}
+.atex-empty-anchor {
+  display: inline-block;
+  width: 0;
+  height: 1em;
+}
+.atex-paragraph:has(.atex-empty-anchor)::after {
+  content: 'Type here…';
+  color: var(--text-faint);
+  font-style: italic;
+  pointer-events: none;
+  position: absolute;
+  font-size: 0.92em;
+}
+.atex-paragraph:has(.atex-empty-anchor) .atex-empty-anchor {
+  display: none;
+}
+
+.atex-section {
+  margin: 1.6em 0 0.5em;
+}
+.atex-section[data-level='0'] > .atex-heading {
+  font-size: 1.85em;
+}
+.atex-section[data-level='1'] > .atex-heading {
+  font-size: 1.42em;
+}
+.atex-section[data-level='2'] > .atex-heading {
+  font-size: 1.2em;
+}
+.atex-section[data-level='3'] > .atex-heading {
+  font-size: 1.06em;
+}
+.atex-section[data-level='4'] > .atex-heading,
+.atex-section[data-level='5'] > .atex-heading {
+  font-size: 1em;
+}
+.atex-heading {
+  margin: 0 0 0.4em;
+  font-weight: 650;
+  line-height: 1.3;
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.atex-heading-title {
+  outline: none;
+}
+.atex-heading-tools {
+  flex: 1 1 auto;
+}
+.atex-section-body {
+  margin-left: 0;
+}
+
+.atex-inline {
+  border-radius: 3px;
+}
+.atex-inline:hover {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.atex-inline code,
+code.atex-code,
+.atex-atom-verb {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--bg-sunken);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.atex-smallcaps {
+  font-variant: small-caps;
+}
+.tex-smallcaps {
+  font-variant: small-caps;
+}
+.tex-rm {
+  font-family: var(--font-doc);
+}
+.tex-sf {
+  font-family: var(--font-ui);
+}
+.tex-fbox,
+.tex-mbox {
+  border: 1px solid var(--border-strong);
+  padding: 0 0.2em;
+  border-radius: 3px;
+}
+.atex-link,
+.atex-href {
+  color: var(--accent-text);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  cursor: pointer;
+}
+.atex-link:hover,
+.atex-href:hover {
+  border-bottom-color: var(--accent-text);
+}
+.atex-linebreak {
+  display: inline;
+}
+
+/* atoms: non-editable chips */
+.atex-atom {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.atex-atom:hover {
+  filter: brightness(0.98);
+}
+.atex-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.76em;
+  color: var(--text-muted);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0 5px;
+  margin: 0 2px;
+  vertical-align: baseline;
+  line-height: 1.5;
+}
+.atex-ref,
+.atex-cite {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.8em;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  padding: 0 5px;
+  line-height: 1.5;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+.atex-ref-unresolved,
+.atex-cite-unresolved {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.atex-include {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.8em;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border: 1px dashed var(--border);
+  border-radius: 5px;
+  padding: 0 6px;
+  line-height: 1.5;
+  vertical-align: baseline;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.atex-include:hover {
+  color: var(--accent-text);
+  border-color: var(--accent-text);
+}
+.atex-ref::before,
+.atex-cite::before {
+  opacity: 0.7;
+}
+.atex-footnote {
+  display: inline-block;
+  font-size: 0.72em;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border-radius: 4px;
+  padding: 0 4px;
+  margin: 0 1px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  line-height: 1.45;
+  vertical-align: super;
+}
+.atex-math {
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.atex-math:hover {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.atex-math-error {
+  color: var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--danger-soft);
+}
+.atex-display-math {
+  display: block;
+  margin: 1em 0;
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--bg-sunken) 55%, transparent);
+  border-left: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  overflow-x: auto;
+}
+.atex-display-math:hover {
+  background: var(--bg-sunken);
+}
+.atex-display-math.atex-math-upgraded {
+  border-left-color: var(--accent-2);
+}
+.atex-math-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+.atex-math-env {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+}
+.atex-math-tex svg {
+  max-width: 100%;
+  height: auto;
+}
+.atex-unknown {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  background: var(--bg-sunken);
+  border: 1px dashed var(--border-strong);
+  border-radius: 5px;
+  padding: 0 5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 100%;
+  overflow: hidden;
+}
+.atex-unknown-name {
+  color: var(--accent-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.atex-unknown-args {
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 22ch;
+}
+.atex-quiet-marker {
+  font-family: var(--font-mono);
+  font-size: 0.7em;
+  color: var(--text-faint);
+  opacity: 0.5;
+  padding: 0 3px;
+  cursor: default;
+}
+.atex-quiet-marker:hover {
+  opacity: 1;
+}
+.atex-comment-marker {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--warning);
+  opacity: 0.25;
+  margin: 0 1px;
+  vertical-align: text-bottom;
+  border-radius: 2px;
+}
+.atex-comment-marker:hover {
+  opacity: 0.7;
+}
+.atex-hidden-ws {
+  display: inline;
+}
+.atex-inline-image {
+  display: inline-block;
+  vertical-align: middle;
+}
+.atex-image {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 4px;
+}
+
+/* lists */
+.atex-list {
+  margin: 0.4em 0 0.7em;
+}
+.atex-list-items {
+  margin: 0;
+  padding-left: 1.6em;
+}
+ul.atex-list-items {
+  list-style: disc;
+}
+ul.atex-list-items ul.atex-list-items {
+  list-style: circle;
+}
+ol.atex-list-items {
+  list-style: decimal;
+}
+.atex-li {
+  margin: 0.15em 0;
+  position: relative;
+  list-style: inherit;
+}
+.atex-li-content {
+  min-height: 1.2em;
+}
+.atex-li-handle {
+  position: absolute;
+  left: -1.35em;
+  top: 0.28em;
+  color: var(--text-faint);
+  opacity: 0;
+  cursor: grab;
+  display: inline-flex;
+}
+.atex-li:hover > .atex-li-handle {
+  opacity: 0.6;
+}
+.atex-li-label {
+  font-weight: 650;
+  margin-right: 0.4em;
+}
+
+/* containers */
+.atex-container {
+  margin: 0.7em 0;
+  position: relative;
+}
+.atex-env-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+  user-select: none;
+}
+.atex-env-name {
+  background: var(--bg-sunken);
+  border-radius: 4px;
+  padding: 0 5px;
+}
+.atex-env-quote .atex-container-body,
+.atex-env-quotation .atex-container-body {
+  border-left: 3px solid var(--border-strong);
+  padding-left: 16px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.atex-env-center .atex-container-body {
+  text-align: center;
+}
+.atex-env-flushright .atex-container-body {
+  text-align: right;
+}
+.atex-env-abstract .atex-container-body {
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 0.95em;
+}
+.atex-env-abstract .atex-env-bar {
+  display: none;
+}
+.atex-env-unknown .atex-env-name {
+  color: var(--accent-2);
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+}
+.atex-env-document > .atex-env-bar,
+.atex-env-minipage > .atex-env-bar {
+  display: none;
+}
+
+/* widgets */
+.atex-widget {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-raised);
+  padding: 10px 12px 12px;
+  margin: 1.1em 0;
+  position: relative;
+}
+.atex-widget-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  min-height: 24px;
+}
+.atex-widget-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  margin-right: auto;
+}
+.atex-widget-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.atex-widget-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.atex-widget-extra {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atex-figure-media {
+  display: flex;
+  justify-content: center;
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  padding: 14px;
+  min-height: 60px;
+  align-items: center;
+}
+.atex-figure-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 3px;
+}
+.atex-missing-note {
+  color: var(--warning);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  padding: 10px;
+  text-align: center;
+}
+.atex-figure-caption {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.atex-caption-label {
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 5px;
+}
+.atex-caption-text {
+  outline: none;
+}
+.atex-caption-placeholder {
+  color: var(--text-faint);
+  font-style: italic;
+}
+.atex-figure-label {
+  margin-left: 6px;
+}
+
+.atex-table-widget {
+  overflow-x: auto;
+}
+.atex-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
+}
+.atex-td {
+  padding: 5px 10px;
+  border: none;
+  vertical-align: top;
+  min-width: 60px;
+  position: relative;
+}
+.atex-td:focus,
+.atex-td-content:focus {
+  outline: none;
+}
+.atex-td-content {
+  outline: none;
+  min-height: 1.3em;
+}
+.atex-table .atex-tr:hover .atex-td {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+.atex-table .atex-td:focus-within {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent);
+  background: var(--bg-raised);
+}
+tr.atex-rule-top-light > .atex-td {
+  border-top: 1px solid var(--border-strong);
+}
+tr.atex-rule-top-medium > .atex-td {
+  border-top: 1px solid var(--text);
+}
+tr.atex-rule-top-heavy > .atex-td {
+  border-top: 2px solid var(--text);
+}
+tr.atex-rule-top-dashed > .atex-td {
+  border-top: 1px dashed var(--text-muted);
+}
+tr.atex-rule-top-partial > .atex-td {
+  border-top: 1px solid var(--border-strong);
+}
+tr.atex-rule-bottom-light > .atex-td {
+  border-bottom: 1px solid var(--border-strong);
+}
+tr.atex-rule-bottom-medium > .atex-td {
+  border-bottom: 1px solid var(--text);
+}
+tr.atex-rule-bottom-heavy > .atex-td {
+  border-bottom: 2px solid var(--text);
+}
+tr.atex-rule-bottom-dashed > .atex-td {
+  border-bottom: 1px dashed var(--text-muted);
+}
+tr.atex-rule-bottom-partial > .atex-td {
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.atex-code-block,
+.atex-raw-block {
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  padding: 8px 10px 10px;
+  margin: 1em 0;
+  border: 1px solid var(--border);
+}
+.atex-code-body,
+.atex-raw-body,
+.atex-code-preview {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--code-font-size);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-muted);
+  max-height: 260px;
+  overflow: auto;
+}
+.atex-code-preview {
+  text-align: left;
+  max-height: 60vh;
+  color: var(--text);
+}
+
+.atex-preamble {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--bg-sunken) 65%, transparent);
+  padding: 8px 11px;
+  margin: 0 0 1.2em;
+  cursor: default;
+}
+.atex-preamble-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.atex-preamble-head strong {
+  color: var(--text);
+  font-weight: 620;
+}
+.atex-preamble-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.atex-preamble-hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+.atex-table-caption {
+  margin-top: 10px;
+  text-align: left;
+}
+.atex-doc-rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  margin: 1em 0;
+  border-top: 1px dashed var(--border-strong);
+  border-bottom: 1px dashed var(--border-strong);
+  color: var(--text-faint);
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  background: color-mix(in srgb, var(--bg-sunken) 60%, transparent);
+}
+.atex-rule-note {
+  margin-left: auto;
+  font-family: var(--font-mono);
+}
+.atex-macro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  margin: 0.5em 0;
+  border-radius: 6px;
+  background: var(--bg-sunken);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  overflow: hidden;
+}
+.atex-macro-name {
+  color: var(--accent-2);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.atex-macro-body {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atex-empty {
+  min-height: 4px;
+  color: var(--text-faint);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+.atex-empty-blank {
+  min-height: 2px;
+}
+.atex-flash {
+  animation: atex-flash 0.9s ease-out;
+}
+@keyframes atex-flash {
+  0% {
+    background: color-mix(in srgb, var(--accent) 26%, transparent);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* -- 6. source editor ---------------------------------------------------- */
+
+.atex-source-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  background: var(--bg-raised);
+  position: relative;
+}
+.atex-findbar {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+}
+.atex-findbar .atex-find-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.atex-findbar .atex-find-replace {
+  display: none;
+}
+.atex-findbar.with-replace .atex-find-replace {
+  display: flex;
+}
+.atex-findbar input {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 8px;
+  outline: none;
+  min-width: 0;
+}
+.atex-findbar .atex-find-input {
+  width: 190px;
+}
+.atex-findbar .atex-replace-input {
+  width: 190px;
+}
+.atex-findbar input:focus {
+  border-color: var(--accent-text);
+}
+.atex-findbar button {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 3px 7px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.atex-findbar button:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+.atex-findbar button.on {
+  color: var(--accent-text);
+  border-color: var(--accent-text);
+}
+.atex-find-count {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  min-width: 64px;
+  text-align: center;
+  white-space: nowrap;
+}
+.atex-find-count.atex-find-error {
+  color: var(--danger);
+}
+.atex-gutter {
+  flex: 0 0 auto;
+  width: 52px;
+  padding: 12px 8px 12px 0;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--code-font-size);
+  line-height: 1.6;
+  color: var(--text-faint);
+  background: var(--bg-sunken);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+  user-select: none;
+}
+.atex-gutter-line {
+  height: calc(var(--code-font-size) * 1.6);
+}
+.atex-source-scroll {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+.atex-highlight,
+.atex-source-input {
+  font-family: var(--font-mono);
+  font-size: var(--code-font-size);
+  line-height: 1.6;
+  tab-size: 2;
+  padding: 12px 16px;
+  margin: 0;
+  border: 0;
+  white-space: pre;
+  letter-spacing: 0;
+  word-spacing: 0;
+}
+.atex-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  pointer-events: none;
+  color: var(--text);
+  will-change: transform;
+}
+.atex-source-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--accent);
+  outline: none;
+  overflow: auto;
+  spellcheck: false;
+}
+.atex-source-input::selection {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: transparent;
+}
+
+.tex-command {
+  color: #7c3aed;
+}
+.tex-command-section {
+  color: #0d6efd;
+  font-weight: 600;
+}
+.tex-command-ref,
+.tex-command-cite {
+  color: #0d9488;
+}
+.tex-command-env {
+  color: #b45309;
+  font-weight: 600;
+}
+.tex-command-format {
+  color: #be185d;
+}
+.tex-envname {
+  color: #b45309;
+  font-weight: 600;
+}
+.tex-brace {
+  color: var(--text-faint);
+}
+.tex-math {
+  color: #0369a1;
+  background: color-mix(in srgb, #0369a1 7%, transparent);
+  border-radius: 3px;
+}
+.tex-math-unclosed {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.tex-comment {
+  color: #94a3b8;
+  font-style: italic;
+}
+.tex-verbatim {
+  color: #64748b;
+  background: color-mix(in srgb, #64748b 8%, transparent);
+}
+:root[data-theme='dark'] .tex-command {
+  color: #c4b5fd;
+}
+:root[data-theme='dark'] .tex-command-section {
+  color: #93c5fd;
+}
+:root[data-theme='dark'] .tex-command-ref,
+:root[data-theme='dark'] .tex-command-cite {
+  color: #5eead4;
+}
+:root[data-theme='dark'] .tex-command-env,
+:root[data-theme='dark'] .tex-envname {
+  color: #fcd34d;
+}
+:root[data-theme='dark'] .tex-command-format {
+  color: #f9a8d4;
+}
+:root[data-theme='dark'] .tex-math {
+  color: #7dd3fc;
+}
+
+/* -- 7. PDF preview ------------------------------------------------------ */
+
+.atex-pdf {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-sunken);
+}
+.atex-pdf-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+  min-height: 40px;
+}
+.atex-pdf-page {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 52px;
+  text-align: center;
+}
+.atex-pdf-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 16px;
+  min-height: 0;
+}
+.atex-pdf-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.atex-pdf-page-box {
+  position: relative;
+  background: #fff;
+  box-shadow: var(--shadow);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.atex-pdf-page-box:hover {
+  box-shadow: var(--shadow-lg);
+}
+.atex-pdf-page-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.18s;
+}
+.atex-pdf-page-box.is-ready .atex-pdf-page-image {
+  opacity: 1;
+}
+.atex-pdf-page-box:not(.is-ready)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #f1f3f7 30%, #e6e9f0 50%, #f1f3f7 70%);
+  background-size: 200% 100%;
+  animation: atex-shimmer 1.2s linear infinite;
+}
+@keyframes atex-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+.atex-pdf-page-label {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #94a3b8;
+  z-index: 2;
+  pointer-events: none;
+}
+.atex-pdf-marker {
+  position: absolute;
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+  transition: opacity 0.6s;
+  z-index: 3;
+}
+.atex-pdf-marker.is-fading {
+  opacity: 0;
+}
+.atex-pdf-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 60px 20px;
+  color: var(--text-faint);
+  text-align: center;
+}
+.atex-pdf-placeholder p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.atex-pdf-placeholder small {
+  font-size: 12px;
+}
+.atex-pdf.is-busy .atex-pdf-scroll {
+  opacity: 0.55;
+}
+
+/* -- 8. overlays --------------------------------------------------------- */
+
+#atex-overlays {
+  position: relative;
+  z-index: 50;
+}
+
+.atex-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 30, 0.42);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 70;
+  animation: atex-fade-in 0.12s ease-out;
+}
+.atex-modal-backdrop.atex-modal-out {
+  animation: atex-fade-out 0.15s ease-in forwards;
+}
+@keyframes atex-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes atex-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+.atex-modal {
+  width: min(480px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-raised);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: atex-modal-in 0.16s cubic-bezier(0.2, 0.9, 0.3, 1);
+  overflow: hidden;
+}
+.atex-modal-wide {
+  width: min(720px, 100%);
+}
+@keyframes atex-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+}
+.atex-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px 11px;
+  border-bottom: 1px solid var(--border);
+}
+.atex-modal-title {
+  font-weight: 650;
+  font-size: 14px;
+  flex: 1 1 auto;
+}
+.atex-modal-body {
+  padding: 16px;
+  overflow: auto;
+  min-height: 0;
+}
+.atex-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-sunken) 50%, transparent);
+}
+
+.atex-popover {
+  position: fixed;
+  width: min(340px, calc(100vw - 24px));
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 65;
+  animation: atex-modal-in 0.13s ease-out;
+  overflow: hidden;
+}
+.atex-popover-wide {
+  width: min(560px, calc(100vw - 24px));
+}
+.atex-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.atex-popover-title {
+  flex: 1 1 auto;
+  font-weight: 620;
+  font-size: 12.5px;
+}
+.atex-popover-body {
+  padding: 12px;
+  font-size: 13px;
+  max-height: 60vh;
+  overflow: auto;
+}
+.atex-popover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-sunken) 50%, transparent);
+}
+.atex-popover-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.atex-popover-strong {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--accent-text);
+  word-break: break-all;
+}
+.atex-bib-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--bg-sunken);
+  line-height: 1.45;
+}
+.atex-bib-entry em {
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+.atex-bib-entry small {
+  color: var(--text-faint);
+  font-size: 11.5px;
+}
+
+.atex-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.atex-picker-search {
+  flex: 0 0 auto;
+}
+.atex-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 46vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px;
+  background: var(--bg-sunken);
+}
+.atex-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--bg-raised);
+  cursor: pointer;
+  text-align: left;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.atex-picker-item:hover {
+  border-color: var(--border-strong);
+}
+.atex-picker-item.is-chosen {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.atex-picker-item img {
+  width: 42px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--bg-sunken);
+  flex: 0 0 auto;
+}
+.atex-picker-kind {
+  color: var(--text-faint);
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+.atex-picker-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.atex-picker-main strong {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atex-picker-main small {
+  color: var(--text-faint);
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.atex-picker-key,
+.atex-picker-number {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-sunken);
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex: 0 0 auto;
+}
+.atex-picker-number {
+  color: var(--accent-text);
+  background: var(--accent-soft);
+}
+.atex-picker-empty {
+  padding: 18px 10px;
+  text-align: center;
+}
+
+.atex-toast {
+  position: fixed;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  font-size: 13px;
+  z-index: 80;
+  animation: atex-toast-in 0.18s ease-out;
+  max-width: min(560px, calc(100vw - 32px));
+}
+.atex-toast-out {
+  animation: atex-toast-out 0.2s ease-in forwards;
+}
+@keyframes atex-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+}
+@keyframes atex-toast-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+}
+.atex-toast-success {
+  border-color: color-mix(in srgb, var(--success) 45%, var(--border));
+}
+.atex-toast-success .atex-icon {
+  color: var(--success);
+}
+.atex-toast-error {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+.atex-toast-error .atex-icon {
+  color: var(--danger);
+}
+.atex-toast-warning .atex-icon {
+  color: var(--warning);
+}
+.atex-toast-message {
+  flex: 1 1 auto;
+}
+.atex-toast-action {
+  border: none;
+  background: transparent;
+  color: var(--accent-text);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 12.5px;
+}
+.atex-toast-close {
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  display: inline-flex;
+}
+
+#atex-toasts {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+#atex-toasts > * {
+  pointer-events: auto;
+  position: static;
+  transform: none;
+}
+#atex-toasts .atex-toast {
+  position: static;
+  transform: none;
+  animation: atex-fade-in 0.15s ease-out;
+}
+
+/* math editor */
+.atex-math-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.atex-math-input {
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.atex-math-preview {
+  min-height: 54px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  text-align: center;
+  overflow-x: auto;
+  display: grid;
+  place-items: center;
+}
+.atex-math-preview.atex-math-verified::before {
+  content: 'verified with your TeX distribution';
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  font-size: 10px;
+  color: var(--success);
+}
+.atex-math-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 190px;
+  overflow: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.atex-math-palette-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.atex-math-palette-label {
+  flex: 0 0 74px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  padding-top: 5px;
+}
+.atex-math-palette-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  flex: 1 1 auto;
+}
+.atex-math-key {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-raised);
+  cursor: pointer;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+}
+.atex-math-key:hover {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.atex-math-key .katex {
+  font-size: 0.95em;
+}
+
+/* command palette */
+.atex-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.atex-palette-input {
+  font-size: 15px;
+  padding: 11px 13px;
+}
+.atex-palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 52vh;
+  overflow: auto;
+}
+.atex-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+}
+.atex-palette-item:hover,
+.atex-palette-item.is-active {
+  background: var(--bg-hover);
+}
+.atex-palette-item.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.atex-palette-item .atex-palette-hint {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+}
+.atex-palette-section {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  padding: 8px 11px 2px;
+  font-weight: 600;
+}
+
+/* -- 9. responsive ------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .atex-pane-pdf {
+    flex-basis: 40%;
+  }
+}
+
+@media (max-width: 900px) {
+  .atex-sidebar {
+    position: absolute;
+    z-index: 20;
+    height: calc(100% - var(--topbar-height) - var(--statusbar-height));
+    box-shadow: var(--shadow-lg);
+  }
+  .atex-visual-root {
+    padding: 28px 22px 90px;
+  }
+  .atex-brand-sub,
+  .atex-project-chip small {
+    display: none;
+  }
+}
+
+@media print {
+  .atex-topbar,
+  .atex-sidebar,
+  .atex-toolbar,
+  .atex-statusbar,
+  .atex-pane-editor,
+  .atex-splitter {
+    display: none !important;
+  }
+}

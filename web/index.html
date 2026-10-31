@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <title>ATexVisualEditor — visual LaTeX editing</title>
+    <meta name="description" content="Edit LaTeX like a word processor: a visual editor and the source, always in sync." />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d6efd'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='17' fill='white' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="vendor/katex/katex.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script src="vendor/katex/katex.min.js" defer></script>
+    <script>
+      // Collect failures from the very first moment, so a problem during
+      // start-up is reportable instead of leaving a blank screen.
+      window.__atexErrors = [];
+      window.addEventListener('error', (event) => {
+        window.__atexErrors.push(
+          `${event.message} @ ${event.filename || ''}:${event.lineno || 0}:${event.colno || 0}`
+        );
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        const reason = event.reason;
+        const where = String((reason && reason.stack) || '').split('\n')[1] || '';
+        window.__atexErrors.push(`unhandled rejection: ${(reason && reason.message) || reason} ${where}`);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="atex-app">
+      <!-- ------------------------------------------------------ -->
+      <header class="atex-topbar" id="atex-topbar">
+        <div class="atex-brand">
+          <span class="atex-brand-mark">A</span>
+          <span>
+            <span class="atex-brand-name">ATexVisualEditor</span>
+            <span class="atex-brand-sub" id="atex-brand-sub">visual LaTeX</span>
+          </span>
+        </div>
+
+        <button class="atex-project-chip" id="atex-project-chip" type="button">
+          <strong>Loading…</strong>
+        </button>
+
+        <span class="atex-toolbar-spacer"></span>
+
+        <div class="atex-view-switch" id="atex-view-switch" role="group" aria-label="Editor view">
+          <button type="button" data-view="visual" class="is-active">Visual</button>
+          <button type="button" data-view="source">Source</button>
+          <button type="button" data-view="split">Both</button>
+        </div>
+
+        <div class="atex-compile-split is-idle" id="atex-compile-split">
+          <button class="atex-compile-btn" id="atex-compile-btn" type="button">Compile</button>
+          <button class="atex-compile-menu" id="atex-compile-menu" type="button" title="Build options" aria-label="Build options">▾</button>
+        </div>
+      </header>
+
+      <!-- ------------------------------------------------------ -->
+      <div class="atex-body">
+        <aside class="atex-sidebar" id="atex-sidebar">
+          <div class="atex-tabs" id="atex-tabs">
+            <button type="button" class="atex-tab is-active" data-panel="files">Files</button>
+            <button type="button" class="atex-tab" data-panel="outline">Outline</button>
+            <button type="button" class="atex-tab" data-panel="problems">
+              Problems <span class="atex-tab-badge" id="atex-tab-badge-problems" hidden>0</span>
+            </button>
+            <button type="button" class="atex-tab" data-panel="bib">Cite</button>
+          </div>
+          <div class="atex-sidebar-body" id="atex-sidebar-body"></div>
+          <div class="atex-sidebar-footer" id="atex-sidebar-footer"></div>
+        </aside>
+        <div class="atex-splitter" id="atex-sidebar-splitter" role="separator" aria-orientation="vertical"></div>
+
+        <main class="atex-main">
+          <section class="atex-pane atex-pane-editor" id="atex-editor-pane">
+            <div class="atex-toolbar" id="atex-editor-toolbar"></div>
+            <div class="atex-visual-scroll" id="atex-visual-scroll">
+              <div id="atex-visual"></div>
+            </div>
+            <div id="atex-source" hidden></div>
+          </section>
+
+          <div class="atex-splitter" id="atex-splitter" role="separator" aria-orientation="vertical"></div>
+
+          <section class="atex-pane atex-pane-pdf" id="atex-pdf-pane">
+            <div id="atex-pdf"></div>
+          </section>
+        </main>
+      </div>
+
+      <!-- ------------------------------------------------------ -->
+      <footer class="atex-statusbar">
+        <span id="atex-status-left"></span>
+        <span class="atex-status-spacer"></span>
+        <span id="atex-status-right" style="display: flex; gap: 12px; align-items: center"></span>
+      </footer>
+    </div>
+
+    <noscript>
+      <p style="padding: 24px">ATexVisualEditor needs JavaScript enabled.</p>
+    </noscript>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
