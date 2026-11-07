@@ -1,5 +1,8 @@
 # ATexVisualEditor
 
+[![CI](https://github.com/l1Ha/ATexVisualEditor/actions/workflows/ci.yml/badge.svg)](https://github.com/l1Ha/ATexVisualEditor/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A cross-platform, visual LaTeX editor — an Overleaf-style **Visual Editor** mode
 you can run entirely on your own machine, offline.
 
@@ -168,3 +171,8 @@ The server binds to `127.0.0.1` by default and is meant for local use. Project
 paths are guarded against directory traversal, uploads are size-limited, and
 LaTeX compilation runs with `shell-escape` disabled unless you enable it for a
 specific project — treat a project you enable it for as trusted code.
+
+## License
+
+[MIT](LICENSE) — the vendored KaTeX in `web/vendor/katex/` keeps its own
+license, included alongside it.

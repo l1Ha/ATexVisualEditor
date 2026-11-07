@@ -263,7 +263,10 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(status, 201)
         return project["id"]
 
-    @unittest.skipUnless(TOOLCHAIN.to_json()["hasTex"], "no TeX distribution installed")
+    @unittest.skipUnless(
+        TOOLCHAIN.to_json()["hasTex"] and TOOLCHAIN.pdfinfo,
+        "TeX or pdfinfo (poppler) not installed",
+    )
     def test_compile_and_pages(self):
         pid = self._make_doc("compile-test")
         status, result = self.server.json_request("POST", f"/api/projects/{pid}/compile", json_body={})
@@ -287,7 +290,10 @@ class ServerTests(unittest.TestCase):
 
         self.server.json_request("DELETE", f"/api/projects/{pid}")
 
-    @unittest.skipUnless(TOOLCHAIN.to_json()["hasTex"], "no TeX distribution installed")
+    @unittest.skipUnless(
+        TOOLCHAIN.to_json()["hasTex"] and TOOLCHAIN.synctex,
+        "TeX or synctex not installed",
+    )
     def test_synctex_round_trip(self):
         pid = self._make_doc("synctex-test")
         status, result = self.server.json_request("POST", f"/api/projects/{pid}/compile", json_body={})
@@ -315,7 +321,10 @@ class ServerTests(unittest.TestCase):
 
         self.server.json_request("DELETE", f"/api/projects/{pid}")
 
-    @unittest.skipUnless(TOOLCHAIN.to_json()["hasTex"], "no TeX distribution installed")
+    @unittest.skipUnless(
+        TOOLCHAIN.to_json()["hasTex"] and TOOLCHAIN.dvisvgm,
+        "TeX or dvisvgm not installed",
+    )
     def test_math_svg(self):
         status, payload = self.server.json_request(
             "POST", "/api/math/svg", json_body={"latex": "e^{i\\pi} + 1 = 0", "display": True}
